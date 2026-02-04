@@ -1,5 +1,8 @@
 fastapi 
 uvicorn
-pydantic
+pydantic[email]
 sqlalchemy
 asyncpg
+python-jose
+greenlet
+passlib[bcrypt]
