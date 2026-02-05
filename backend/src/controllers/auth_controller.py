@@ -8,9 +8,9 @@ from src.services.auth_service import AuthService
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post(
-    "/register",
+    "/signup",
     response_model=SignupResponse,
-    status_code=status.HTTP_201_CREATED  # 201 Created for successful signup
+    status_code=status.HTTP_201_CREATED 
 )
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     """

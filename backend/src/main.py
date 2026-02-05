@@ -1,8 +1,19 @@
 from fastapi import FastAPI
 from src.core.database import Base, engine
 from src.controllers import routers
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="Task Management System")
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",  # React (Vite)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include routers
 for router in routers:
