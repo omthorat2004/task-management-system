@@ -1,10 +1,10 @@
 import asyncpg
 from fastapi import Depends
 
-DATABASE_URL = "postgresql://omthorat:password@localhost:5432/task_management_system"
+DATABASE_URL = "postgresql://omthorat:password@localhost:5432/task-management-system"
 
 class Database:
-    pool: asyncpg.Pool | None = None
+    pool: asyncpg.Pool | None 
 
 db = Database()
 

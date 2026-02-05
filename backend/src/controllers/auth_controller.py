@@ -5,6 +5,8 @@ from src.core.jwt import create_access_token
 from src.schemas.user import SignupResponse, UserCreate, UserResponse
 from src.services.auth_service import AuthService
 
+import asyncpg
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post(
@@ -12,7 +14,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     response_model=SignupResponse,
     status_code=status.HTTP_201_CREATED 
 )
-async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(user: UserCreate, db: asyncpg.Connection = Depends(get_db)):
     """
     Register a new user (employee only) and return JWT token
     """
@@ -21,11 +23,11 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
         new_user = await AuthService.register_user(db, user.name, user.email, user.password)
 
         # Generate JWT token
-        token = create_access_token({"user_id": new_user.id, "role": new_user.role})
+        token = create_access_token({"user_id": new_user["id"], "role": new_user["role"]})
 
         
         return SignupResponse(
-    user=UserResponse.model_validate(new_user),
+    user=new_user,
     access_token=token,
     token_type="bearer"
 )

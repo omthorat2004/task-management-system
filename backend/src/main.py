@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.core.database import Base, engine
+
 from src.controllers import routers
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="Task Management System")

@@ -1,19 +1,36 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from src.models.user import User
+
+
+import asyncpg
+
+from src.schemas.user import UserCreate
+from src.dao.queries.auth import CREATE_USER_QUERY,GET_USER_BY_EMAIL_QUERY
+
 
 class UserDAO:
 
     @staticmethod
-    async def create_user(db: AsyncSession, user: User):
-        """Add new user to database and commit"""
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
-        return user
+    async def create_user(connection: asyncpg.Connection, user: UserCreate, role: str = "employee"):
+        """
+        Add new user to the database using raw SQL.
+        Returns the created user as a dict.
+        """
+        row = await connection.fetchrow(
+            CREATE_USER_QUERY,
+            user.name,
+            user.email,
+            user.password,
+            role
+        )
+
+        return dict(row)
 
     @staticmethod
-    async def get_user_by_email(db: AsyncSession, email: str):
-        """Fetch user by email"""
-        result = await db.execute(select(User).where(User.email == email))
-        return result.scalars().first()
+    async def get_user_by_email(connection: asyncpg.Connection, email: str):
+        """
+        Fetch a user by email using raw SQL.
+        Returns the user as a dict or None.
+        """
+        row = await connection.fetchrow(GET_USER_BY_EMAIL_QUERY, email)
+        if row:
+            return dict(row)
+        return None
