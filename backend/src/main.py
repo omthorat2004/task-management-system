@@ -4,7 +4,7 @@ from src.controllers import routers
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="Task Management System")
 
-
+from .core.database import connect_db,disconnect_db
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -19,9 +19,10 @@ app.add_middleware(
 for router in routers:
     app.include_router(router)
 
-# Startup event to create tables if they don’t exist
 @app.on_event("startup")
-async def on_startup():
-    # Only for development/testing
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+async def startup():
+    await connect_db()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await disconnect_db()

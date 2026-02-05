@@ -1,26 +1,23 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+import asyncpg
+from fastapi import Depends
 
-# PostgreSQL async URL
-DATABASE_URL = "postgresql+asyncpg://omthorat:pass@localhost:5432/task-management-system"
+DATABASE_URL = "postgresql://omthorat:password@localhost:5432/task_management_system"
 
-# Create async engine
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True  # prints SQL queries in console
-)
+class Database:
+    pool: asyncpg.Pool | None = None
 
-# Session maker
-AsyncSessionLocal = sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False
-)
+db = Database()
 
-# Base for models
-Base = declarative_base()
+async def connect_db():
+    db.pool = await asyncpg.create_pool(
+        DATABASE_URL,
+        min_size=1,
+        max_size=10
+    )
 
-# Dependency for FastAPI
+async def disconnect_db():
+    await db.pool.close()
+
 async def get_db():
-    async with AsyncSessionLocal() as session:
-        yield session
+    async with db.pool.acquire() as connection:
+        yield connection
