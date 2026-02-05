@@ -13,9 +13,8 @@ class UserResponse(BaseModel):
     role: str
     
     model_config = {
-        "from_attributes": True  # required for ORM objects
+        "from_attributes": True  
     }
-    
 
 
 class SignupResponse(BaseModel):
