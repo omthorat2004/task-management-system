@@ -1,7 +1,7 @@
 fastapi 
 uvicorn
 pydantic[email]
-sqlalchemy
+
 asyncpg
 python-jose
 greenlet

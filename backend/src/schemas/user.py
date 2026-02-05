@@ -12,10 +12,7 @@ class UserResponse(BaseModel):
     email: EmailStr
     role: str
     
-    model_config = {
-        "from_attributes": True  
-    }
-
+   
 
 class SignupResponse(BaseModel):
     user: UserResponse
