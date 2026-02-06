@@ -44,10 +44,11 @@ export const signup = createAsyncThunk(
 
 export const login = createAsyncThunk("auth/login", async (body :LoginBody , { rejectWithValue }) => {
   try {
+    console.log(body)
     const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_API}/auth/login`, {
       method: "POST",
       headers: {
-        'Content-Type': "application/json`"
+        'Content-Type': "application/json"
       },
       body: JSON.stringify(body)
     })
@@ -85,6 +86,7 @@ const authSlice = createSlice({
     logOut: (state)=>{
       state.token = null
       state.user = null
+      localStorage.clear()
     }
   },
   extraReducers: (builder) => {
@@ -99,6 +101,7 @@ const authSlice = createSlice({
         state.success = true;
         state.user = action.payload?.user;
         state.token = action.payload?.token
+        localStorage.setItem(TOKEN_NAME,state.token as string)
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
@@ -112,6 +115,7 @@ const authSlice = createSlice({
         state.success = true
         state.token = action.payload.token
         state.user = action.payload.user
+        localStorage.setItem(TOKEN_NAME,state.token as string)
       })
       .addCase(login.rejected,(state,action)=>{
         state.loading = false

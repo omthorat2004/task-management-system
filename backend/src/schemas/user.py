@@ -1,31 +1,31 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr
 
 
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
-    
+
+
 class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
     role: str
-    
-   
+
 
 class SignupResponse(BaseModel):
     user: UserResponse
     access_token: str
     token_type: str = "bearer"
-    
+
 
 class UserLogin(BaseModel):
-    email:str
-    password:str
+    email: EmailStr
+    password: str
+
 
 class LoginResponse(BaseModel):
-    user:UserResponse
-    access_token:str
-    
-
+    user: UserResponse
+    access_token: str
+    token_type: str = "bearer"
