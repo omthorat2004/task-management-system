@@ -18,3 +18,14 @@ class SignupResponse(BaseModel):
     user: UserResponse
     access_token: str
     token_type: str = "bearer"
+    
+
+class UserLogin(BaseModel):
+    email:str
+    password:str
+
+class LoginResponse(BaseModel):
+    user:UserResponse
+    access_token:str
+    
+
