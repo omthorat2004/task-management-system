@@ -1,9 +1,10 @@
-import { signup } from "@/features/authentication/authenticationSlice";
+
+import { login } from "@/features/authentication/authenticationSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Signup = () => {
+const Login = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -12,7 +13,6 @@ const Signup = () => {
   );
 
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
   });
@@ -20,8 +20,8 @@ const Signup = () => {
   useEffect(() => {
     if (success) {
       setTimeout(() => {
-        navigate("/login");
-      }, 1500); 
+        navigate("/"); 
+      }, 1500);
     }
   }, [success, navigate]);
 
@@ -29,29 +29,21 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(signup(formData));
+    dispatch(login(formData));
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="card w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">
-          Create Account
-        </h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Name"
-            className="w-full"
-          />
-
-          <input
             name="email"
+            type="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="Email"
@@ -71,7 +63,7 @@ const Signup = () => {
 
           {success && (
             <p className="alert-success text-sm">
-              Account created successfully! Redirecting…
+              Login successful! Redirecting…
             </p>
           )}
 
@@ -80,16 +72,16 @@ const Signup = () => {
             disabled={loading}
             className="button w-full"
           >
-            {loading ? "Creating..." : "Sign Up"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
-          Already have an account? <Link to="/login">Login</Link>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default Signup;
+export default Login;

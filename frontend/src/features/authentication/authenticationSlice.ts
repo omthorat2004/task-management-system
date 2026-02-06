@@ -2,9 +2,21 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { TOKEN_NAME } from "../../constants";
 
 
+type LoginBody = {
+  email:string;
+  password:string;
+}
+
+type SignupBody = {
+  name:string;
+  email:string;
+  password:string;
+}
+
+
 export const signup = createAsyncThunk(
   "auth/signup",
-  async (body: any, { rejectWithValue }) => {
+  async (body: SignupBody, { rejectWithValue }) => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_APP_BACKEND_API}/auth/signup`,
@@ -21,7 +33,7 @@ export const signup = createAsyncThunk(
         return rejectWithValue(data.detail || "Signup failed");
       }
 
-      return data; // 👈 REQUIRED
+      return data;
     } catch (err) {
       return rejectWithValue(
         err instanceof Error ? err.message : "Server Error"
@@ -29,6 +41,31 @@ export const signup = createAsyncThunk(
     }
   }
 );
+
+export const login = createAsyncThunk("auth/login", async (body :LoginBody , { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_API}/auth/login`, {
+      method: "POST",
+      headers: {
+        'Content-Type': "application/json`"
+      },
+      body: JSON.stringify(body)
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.details || "Login failed")
+    }
+
+    return data
+  } catch (err) {
+    rejectWithValue(err instanceof Error ? err.message : "Server Error")
+  }
+})
+
+
+
 const initialState = {
   loading: false,
   user: null,
@@ -45,6 +82,10 @@ const authSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    logOut: (state)=>{
+      state.token = null
+      state.user = null
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -56,14 +97,28 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.user = action.payload.user;
+        state.user = action.payload?.user;
+        state.token = action.payload?.token
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      });
+      })
+      .addCase(login.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false
+        state.success = true
+        state.token = action.payload.token
+        state.user = action.payload.user
+      })
+      .addCase(login.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload as string
+      })
   },
 });
 
-export const { resetAuthState } = authSlice.actions;
+export const { resetAuthState , logOut} = authSlice.actions;
 export default authSlice.reducer;
