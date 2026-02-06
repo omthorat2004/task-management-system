@@ -1,4 +1,4 @@
-import { signup } from "@/features/authentication/authenticationSlice";
+import { resetAuthState, signup } from "@/features/authentication/authenticationSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ const Signup = () => {
   useEffect(() => {
     if (success) {
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 1500); 
     }
   }, [success, navigate]);
@@ -33,6 +33,15 @@ const Signup = () => {
     e.preventDefault();
     dispatch(signup(formData));
   };
+
+
+  useEffect(()=>{
+
+    return ()=>{
+      dispatch(resetAuthState())
+    }
+
+  },[])
 
   return (
     <div className="min-h-screen flex items-center justify-center">

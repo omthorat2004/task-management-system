@@ -1,9 +1,14 @@
+import { logOut } from "@/features/authentication/authenticationSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate()
+
+    const token = useAppSelector((state)=>state.auth.token)
+    const dispatch = useAppDispatch()
 
     return (
         <nav className="fixed top-0 w-full z-50 bg-header-bg backdrop-blur-sm border-b border-border">
@@ -17,12 +22,15 @@ const Navbar = () => {
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center gap-4">
-                    <button onClick={()=>navigate('/login')} className="nav-btn">
+                    {!token?<><button onClick={()=>navigate('/login')} className="nav-btn">
                         Login
                     </button>
                     <button onClick={()=>navigate('/signup')}  className="nav-btn">
                         Signup
-                    </button>
+                    </button></>:<>
+                    <button className="nav-btn" onClick={()=>navigate('/dashboard')}>Dashboard</button>
+                    <button className="nav-btn" onClick={()=>dispatch(logOut())}>Logout</button>
+                    </>}
                 </div>
 
                 {/* Mobile Menu Button */}

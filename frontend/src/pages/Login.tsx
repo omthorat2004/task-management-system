@@ -1,5 +1,5 @@
 
-import { login } from "@/features/authentication/authenticationSlice";
+import { login, resetAuthState } from "@/features/authentication/authenticationSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -33,6 +33,12 @@ const Login = () => {
     e.preventDefault();
     dispatch(login(formData));
   };
+
+  useEffect(()=>{
+    return ()=>{
+        dispatch(resetAuthState())
+    }
+  },[])
 
 
   return (

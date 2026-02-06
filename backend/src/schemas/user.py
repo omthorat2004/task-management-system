@@ -1,3 +1,4 @@
+from typing import TypedDict
 from pydantic import BaseModel, EmailStr
 
 
@@ -29,3 +30,14 @@ class LoginResponse(BaseModel):
     user: UserResponse
     access_token: str
     token_type: str = "bearer"
+    
+class VerifyResponse(BaseModel):
+    user: UserResponse
+    authenticated: bool
+    
+
+class UserDB(TypedDict):
+    id: int
+    name: str
+    email: str
+    role: str

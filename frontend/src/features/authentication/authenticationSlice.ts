@@ -28,6 +28,7 @@ export const signup = createAsyncThunk(
       );
 
       const data = await response.json();
+     
 
       if (!response.ok) {
         return rejectWithValue(data.detail || "Signup failed");
@@ -44,7 +45,7 @@ export const signup = createAsyncThunk(
 
 export const login = createAsyncThunk("auth/login", async (body :LoginBody , { rejectWithValue }) => {
   try {
-    console.log(body)
+   
     const response = await fetch(`${import.meta.env.VITE_APP_BACKEND_API}/auth/login`, {
       method: "POST",
       headers: {
@@ -54,14 +55,16 @@ export const login = createAsyncThunk("auth/login", async (body :LoginBody , { r
     })
 
     const data = await response.json()
+    console.log(data)
 
     if (!response.ok) {
-      throw new Error(data.details || "Login failed")
+      throw new Error(data.detail || "Login failed")
     }
 
     return data
   } catch (err) {
-    rejectWithValue(err instanceof Error ? err.message : "Server Error")
+    console.log(err)
+    return rejectWithValue(err instanceof Error ? err.message : "Server Error")
   }
 })
 
@@ -87,6 +90,9 @@ const authSlice = createSlice({
       state.token = null
       state.user = null
       localStorage.clear()
+    },
+    setUser:(state,action)=>{
+      state.user = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -100,7 +106,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.user = action.payload?.user;
-        state.token = action.payload?.token
+        state.token = action.payload?.access_token
+
         localStorage.setItem(TOKEN_NAME,state.token as string)
       })
       .addCase(signup.rejected, (state, action) => {
@@ -113,7 +120,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false
         state.success = true
-        state.token = action.payload.token
+        state.token = action.payload.access_token
         state.user = action.payload.user
         localStorage.setItem(TOKEN_NAME,state.token as string)
       })
@@ -124,5 +131,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { resetAuthState , logOut} = authSlice.actions;
+export const { resetAuthState , logOut,setUser} = authSlice.actions;
 export default authSlice.reducer;

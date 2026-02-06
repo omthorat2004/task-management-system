@@ -10,3 +10,9 @@ SELECT id, name, email, role, password
 FROM users
 WHERE email = $1;
 """
+
+GET_USER_BY_ID_QUERY = """
+SELECT id, name, email, role
+FROM users
+WHERE id = $1
+"""

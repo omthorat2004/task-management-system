@@ -46,7 +46,8 @@ class AuthService:
     async def login_user(db: asyncpg.Connection, email: str, password: str) -> UserResponse:
         """Login user, raise HTTPException if not found or invalid password"""
         user = await UserDAO.get_user_by_email(db, email)
-        if not user:
+        
+        if  user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
@@ -57,6 +58,20 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
             )
-            
+        return UserResponse(**user)
+    @staticmethod
+    async def verify_user(
+        db: asyncpg.Connection,
+        user_id: int
+        ) -> UserResponse:
+        user = await UserDAO.get_user_by_id(db, user_id)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found"
+            )
 
         return UserResponse(**user)
+
+        
