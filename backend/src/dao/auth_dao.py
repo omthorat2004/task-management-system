@@ -8,7 +8,7 @@ from src.dao.queries.auth import (
 from src.schemas.user import UserCreate
 from src.schemas.user import UserDB
 
-class UserDAO:
+class AuthDAO:
 
     @staticmethod
     async def create_user(

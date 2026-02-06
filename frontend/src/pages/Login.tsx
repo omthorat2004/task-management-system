@@ -12,6 +12,9 @@ const Login = () => {
     (state) => state.auth
   );
 
+  const user = useAppSelector((state)=>state.auth.user)
+
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -20,10 +23,14 @@ const Login = () => {
   useEffect(() => {
     if (success) {
       setTimeout(() => {
-        navigate("/"); 
+         if(user?.role=='admin'){
+            navigate('/admin')
+         }else{
+            navigate('/')
+         }
       }, 1500);
     }
-  }, [success, navigate]);
+  }, [user, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

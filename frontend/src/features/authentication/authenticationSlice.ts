@@ -68,9 +68,25 @@ export const login = createAsyncThunk("auth/login", async (body :LoginBody , { r
   }
 })
 
+type User = {
+  id:Number;
+  name:string;
+  email:string;
+  role:string
+}
 
 
-const initialState = {
+type initialStateType = {
+  loading:boolean;
+  user:User|null;
+  token:string|null;
+  error:string|null;
+  success:boolean;
+}
+
+
+
+const initialState : initialStateType = {
   loading: false,
   user: null,
   token: localStorage.getItem(TOKEN_NAME),

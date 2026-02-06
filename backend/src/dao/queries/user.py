@@ -1,0 +1,1 @@
+GET_ALL_USERS="SELECT id,name,email,role FROM users WHERE role=$1"
