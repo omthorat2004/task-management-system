@@ -49,6 +49,6 @@ async def login(user: UserLogin, db: asyncpg.Connection = Depends(get_db)):
 
     logged_in_user = await AuthService.login_user(db, user.email, user.password)
 
-    token = create_access_token({"user_id": logged_in_user.id, "role": logged_in_user.id})
+    token = create_access_token({"user_id": logged_in_user.id, "role": logged_in_user.role})
 
     return LoginResponse(user=logged_in_user, access_token=token)

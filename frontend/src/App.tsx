@@ -8,11 +8,23 @@ import Signup from './pages/Signup'
 import Login from './pages/Login'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { logOut, setUser } from './features/authentication/authenticationSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import PrivateRoute from './PrivateRoute'
 import Dashboard from './pages/Dashboard'
+import Admin from './pages/Admin'
+import CreateTaskModal from './features/admin/components/CreateTaskModal'
 
 function App() {
+
+  const [createTaskModalOpen,setOpen] = useState(false)
+
+  const onOpen = ()=>{
+    setOpen(true)
+  }
+
+  const onClose = ()=>[
+    setOpen(false)
+  ]
 
   const dispatch = useAppDispatch()
 
@@ -49,7 +61,7 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar createTaskModalOpen={createTaskModalOpen} onOpen={onOpen}/>
       <Routes>
 
         <Route path='/' element={<Home />} />
@@ -58,8 +70,10 @@ function App() {
 
         <Route element={<PrivateRoute/>}>
           <Route path='/dashboard' element={<Dashboard/>}/>
+          <Route path='/admin' element={<Admin/>}/>
         </Route>
       </Routes>
+      {createTaskModalOpen?<CreateTaskModal title='' description='' dueDate='' assignedUser='' onClose={onClose} />:null}
     </>
   )
 }

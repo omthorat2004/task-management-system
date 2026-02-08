@@ -3,15 +3,23 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+interface NavbarProps{
+    createTaskModalOpen:React.ReactNode;
+    onOpen :()=>void
+}
+
+const Navbar:React.FC<NavbarProps> = ({onOpen}) => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate()
+    const user = useAppSelector((state)=>state.auth.user)
+
+    
 
     const token = useAppSelector((state)=>state.auth.token)
     const dispatch = useAppDispatch()
 
     return (
-        <nav className="fixed top-0 w-full z-50 bg-header-bg backdrop-blur-sm border-b border-border">
+        <nav className="fixed top-0 w-full z-50  bg-background/10 backdrop-blur-sm border-b border-border">
             <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
 
                 {/* Product Name */}
@@ -28,7 +36,7 @@ const Navbar = () => {
                     <button onClick={()=>navigate('/signup')}  className="nav-btn">
                         Signup
                     </button></>:<>
-                    <button className="nav-btn" onClick={()=>navigate('/dashboard')}>Dashboard</button>
+                    {user?.role=="employee"?<button className="nav-btn" onClick={()=>navigate('/dashboard')}>Dashboard</button>:<button onClick={onOpen} className="nav-btn">Create Task</button>}
                     <button className="nav-btn" onClick={()=>dispatch(logOut())}>Logout</button>
                     </>}
                 </div>
@@ -45,12 +53,15 @@ const Navbar = () => {
             {/* Mobile Menu */}
             {isOpen && (
                 <div className="md:hidden px-4 pb-4 flex flex-col gap-3 bg-header-bg border-t border-border">
-                    <button onClick={()=>navigate('/signup')} className="nav-btn w-full">
+                     {!token?<><button onClick={()=>navigate('/login')} className="nav-btn">
                         Login
                     </button>
-                    <button onClick={()=>navigate('/signup')} className="nav-btn w-full">
+                    <button onClick={()=>navigate('/signup')}  className="nav-btn">
                         Signup
-                    </button>
+                    </button></>:<>
+                    {user?.role=="employee"?<button className="nav-btn" onClick={()=>navigate('/dashboard')}>Dashboard</button>:<button onClick={onOpen} className="nav-btn">Create Task</button>}
+                    <button className="nav-btn" onClick={()=>dispatch(logOut())}>Logout</button>
+                    </>}
                 </div>
             )}
         </nav>
