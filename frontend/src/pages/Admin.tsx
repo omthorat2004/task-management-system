@@ -1,5 +1,5 @@
 import CreateTaskModal from "@/features/admin/components/CreateTaskModal";
-import TaskCard from "@/features/admin/components/TaskCard";
+import TaskCard from "@/features/task/components/TaskCard";
 import ViewTaskModal from "@/features/admin/components/ViewTaskModal";
 import { useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";

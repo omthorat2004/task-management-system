@@ -8,10 +8,10 @@ from src.services.user_service import UserService
 
 router = APIRouter(prefix="/admin",tags=["Admin"])
 
-@router.get("/",response_model=List[UserResponse],status_code=200)
+@router.get("/users",response_model=List[UserResponse],status_code=status.HTTP_200_OK)
 async def get_all_users(db:asyncpg.Connection=Depends(get_db))->List[UserResponse]:
     users = await UserService.get_all_users(db)
-    print(users)
+    
     return users
     
     
