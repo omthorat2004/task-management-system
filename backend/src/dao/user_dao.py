@@ -1,12 +1,12 @@
 import asyncpg
 from src.dao.queries.user import GET_ALL_USERS
-from src.schemas.user import UserResponse
+from src.schemas.user import UserListResponse
 
 
 class UserDAO:
     @staticmethod
-    async def select_all_users(connection:asyncpg.Connection)->list[UserResponse]:
+    async def select_all_users(connection:asyncpg.Connection)->list[UserListResponse]:
         users = await connection.fetch(GET_ALL_USERS,'employee')
         
-        return [UserResponse(**dict(row)) for row in users]
+        return [UserListResponse(**dict(row)) for row in users]
     

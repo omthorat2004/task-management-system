@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from asyncpg import Connection
 from src.dao.task_dao import TaskDAO
-
+from src.schemas.task import TaskResponse
 
 class TaskService:
 
@@ -26,7 +26,7 @@ class TaskService:
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
 
-        return task
+        return TaskResponse(**dict(task))
 
     @staticmethod
     async def employee_update_status(db: Connection, user_role: str, task_id: int, status: str):

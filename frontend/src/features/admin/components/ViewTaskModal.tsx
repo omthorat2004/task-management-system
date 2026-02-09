@@ -20,11 +20,11 @@ const ViewTaskModal = ({ task, onClose }: ViewTaskModalProps) => {
 
         <p><strong>Title:</strong> {task.title}</p>
         <p><strong>Description:</strong> {task.description}</p>
-        <p><strong>Assigned User ID:</strong> {task.assignedUser}</p>
+        <p><strong>Assigned User ID:</strong> {task.assigned_user}</p>
         <p><strong>Status:</strong> {task.status}</p>
         <p>
           <strong>Due Date:</strong>{" "}
-          {new Date(task.dueDate).toLocaleDateString()}
+          {new Date(task.due_date).toLocaleDateString()}
         </p>
 
         <div className="flex justify-end mt-4">

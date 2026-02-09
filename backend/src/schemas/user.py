@@ -13,6 +13,10 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
     role: str
+    
+class UserListResponse(BaseModel):
+    id:int
+    name:str
 
 
 class SignupResponse(BaseModel):

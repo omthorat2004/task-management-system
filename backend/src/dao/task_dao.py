@@ -22,7 +22,8 @@ class TaskDAO:
 
     @staticmethod
     async def fetch_all(db: Connection):
-        return await db.fetch(FETCH_ALL_TASKS)
+         records = await db.fetch(FETCH_ALL_TASKS)
+         return [dict(r) for r in records]
 
     @staticmethod
     async def admin_update(db: Connection, task_id: int, data):

@@ -1,4 +1,4 @@
-import type { Task } from "@/pages/Admin";
+import type { Task } from "../taskSlice";
 
 interface TaskCardProps {
   task: Task;
@@ -50,7 +50,7 @@ const TaskCard = ({ task, onView, onEdit }: TaskCardProps) => {
       <div className="text-sm text-muted">
         Due{" "}
         <span className="font-medium text-foreground">
-          {new Date(task.dueDate).toLocaleDateString()}
+          {new Date(task.due_date).toLocaleDateString()}
         </span>
       </div>
 

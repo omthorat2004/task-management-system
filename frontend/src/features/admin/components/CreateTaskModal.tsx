@@ -1,140 +1,165 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { createTask, adminUpdateTask } from "@/features/task/taskSlice";
+
+/* ---------- types ---------- */
 
 interface CreateTaskModalProps {
-    onClose: () => void;
-    title: string;
-    description: string;
-    assignedUser: string;
-    dueDate: string;
+  onClose: () => void;
+  title: string;
+  description: string;
+  assignedUser: string;
+  dueDate: string;
+  taskId?: number;
 }
 
 interface User {
-    id: string;
-    name: string;
+  id: number;
+  name: string;
 }
 
+/* ---------- component ---------- */
 
-const USERS: User[] = [
-    { id: "1", name: "Alice" },
-    { id: "2", name: "Bob" },
-    { id: "3", name: "Charlie" },
-];
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
+  onClose,
+  title,
+  description,
+  assignedUser,
+  dueDate,
+  taskId,
+}) => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
 
+  const [users, setUsers] = useState<User[]>([]);
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ onClose ,title,description,dueDate,assignedUser}) => {
-    const [formData, setFormData] = useState({
-        title:title,
-        description:description,
-        dueDate:dueDate,
-        assignedUser:assignedUser
-    });
+  const [formData, setFormData] = useState({
+    title,
+    description,
+    assignedUser,
+    dueDate,
+  });
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+  /* fetch users (ADMIN ONLY) */
+  useEffect(() => {
+    if (user?.role === "admin") {
+      axios.get("http://localhost:8000/admin/users").then((res) => {
+        setUsers(res.data);
+      });
+    }
+  }, [user]);
+
+  /* handle input change */
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  /* submit */
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      assigned_user: Number(formData.assignedUser),
+      due_date: formData.dueDate, // DATE (YYYY-MM-DD)
+       status: "pending", 
     };
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        
-        const payload = {...formData,dueDate: new Date(formData.dueDate).toISOString()}
+    if (taskId) {
+      dispatch(adminUpdateTask({ id: taskId, data: payload }));
+    } else {
+      dispatch(createTask(payload));
+    }
 
-        console.log(payload)
-        onClose();
-    };
+    onClose();
+  };
 
+  /* non-admin safety */
+  if (user?.role !== "admin") return null;
 
-    return (
-        <div
-            className="fixed inset-0 bg-black/20 flex justify-center items-center z-100"
-            onClick={onClose}
+  /* ---------- UI ---------- */
+
+  return (
+    <div className="fixed inset-0 bg-black/30 flex justify-center items-center">
+      <form
+        className="card flex flex-col gap-4 w-full max-w-md p-6"
+        onSubmit={handleSubmit}
+      >
+        <h1 className="text-xl font-semibold text-center">
+          {taskId ? "Edit Task" : "Create Task"}
+        </h1>
+
+        {/* Title */}
+        <input
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          placeholder="Title"
+          required
+          className="input"
+        />
+
+        {/* Description */}
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Description"
+          className="input"
+        />
+
+        {/* Assigned user */}
+        <select
+          name="assignedUser"
+          value={formData.assignedUser}
+          onChange={handleChange}
+          required
+          className="input"
         >
-            <form
-                className="card flex flex-col gap-4 w-full max-w-md p-6"
-                onClick={(e) => e.stopPropagation()}
-                onSubmit={handleSubmit}
-            >
-                <h1 className="text-center font-semibold text-xl text-foreground">{title ? "Edit Task" : "Create Task"}</h1>
+          <option value="" disabled>
+            Select user
+          </option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name}
+            </option>
+          ))}
+        </select>
 
-                
-                <div className="flex flex-col">
-                    <label className="text-muted mb-1">Title</label>
-                    <input
-                        type="text"
-                        name="title"
-                        placeholder="Enter title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        className="w-full border border-border rounded-md p-2 focus:border-accent"
-                        required
-                    />
-                </div>
+        {/* Due date */}
+        <input
+          type="date"
+          name="dueDate"
+          value={formData.dueDate}
+          onChange={handleChange}
+          required
+          className="input"
+        />
 
-                {/* Description */}
-                <div className="flex flex-col">
-                    <label className="text-muted mb-1">Description</label>
-                    <textarea
-                        name="description"
-                        placeholder="Enter description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        className="w-full border border-border rounded-md p-2 focus:border-accent resize-none"
-                        rows={4}
-                    />
-                </div>
-
-                {/* Assigned User */}
-                <div className="flex flex-col">
-                    <label className="text-muted mb-1">Assign To</label>
-                    <select
-                        name="assignedUser"
-                        value={formData.assignedUser}
-                        onChange={handleChange}
-                        className="w-full border border-border rounded-md p-2 focus:border-accent"
-                        required
-                    >
-                        <option value="" disabled>
-                            Select a user
-                        </option>
-                        {USERS.map((user) => (
-                            <option key={user.id} value={user.id}>
-                                {user.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Due Date */}
-                <div className="flex flex-col">
-                    <label className="text-muted mb-1">Due Date</label>
-                    <input
-                        type="date"
-                        name="dueDate"
-                        value={formData.dueDate}
-                        onChange={handleChange}
-                        className="w-full border border-border rounded-md p-2 focus:border-accent"
-                        required
-                    />
-                </div>
-
-                {/* Buttons */}
-                <div className="flex justify-end gap-2 mt-2">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="button-destructive px-4 py-2"
-                    >
-                        Cancel
-                    </button>
-                    <button type="submit" className="button px-4 py-2">
-                        Create
-                    </button>
-                </div>
-            </form>
+        {/* Actions */}
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="button-destructive"
+          >
+            Cancel
+          </button>
+          <button type="submit" className="button">
+            Save
+          </button>
         </div>
-    );
+      </form>
+    </div>
+  );
 };
 
 export default CreateTaskModal;

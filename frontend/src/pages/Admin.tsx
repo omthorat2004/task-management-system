@@ -1,104 +1,75 @@
-import CreateTaskModal from "@/features/admin/components/CreateTaskModal";
-import TaskCard from "@/features/task/components/TaskCard";
-import ViewTaskModal from "@/features/admin/components/ViewTaskModal";
-import { useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchTasks, type Task } from "@/features/task/taskSlice";
 
-type status = "pending" | "in-progress" | "completed";
+import TaskCard from "@/features/task/components/TaskCard";
+import CreateTaskModal from "@/features/admin/components/CreateTaskModal";
+import ViewTaskModal from "@/features/admin/components/ViewTaskModal";
 
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  assignedUser: string;
-  dueDate: string; 
-  status: status
-}
-
-
-const TASKS: Task[] = [
-  {
-    id: "1",
-    title: "Design Dashboard",
-    description: "Create admin dashboard UI",
-    assignedUser: "1",
-    dueDate: "2026-02-07T00:00:00.000Z",
-    status: "pending",
-  },
-  {
-    id: "2",
-    title: "API Integration",
-    description: "Integrate task APIs",
-    assignedUser: "2",
-    dueDate: "2026-02-10T00:00:00.000Z",
-    status: "in-progress",
-  },
-];
-
-const defaultTaskValue = {
-    id: "0",
+/* ---------- helpers ---------- */
+const emptyTask: Task = {
+  id: 0,
   title: "",
   description: "",
-  assignedUser: "",
-  dueDate: "",
-  status: "pending" as status
-}
+  assigned_user: 0,
+  due_date: "",
+  status: "pending",
+};
 
+/* ---------- component ---------- */
 const Admin = () => {
-  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  const [tasks] = useState<Task[]>(TASKS);
+  const user = useAppSelector((state) => state.auth.user);
+  const { tasks, loading } = useAppSelector((state) => state.task);
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
-  const [editTask,setEditTask] = useState<Task>(defaultTaskValue);
-
-  const onClose = ()=>{
-    setEditTask(defaultTaskValue)
-  }
-
+  /* auth + fetch tasks */
   useEffect(() => {
-    if(!user){
-        return;
-    }
-    if (user?.role === "employee") {
+    if (!user) return;
+
+    if (user.role === "employee") {
       navigate("/");
+      return;
     }
-  }, [user, navigate]);
 
-  useEffect(() => {
-  console.log("Admin mounted");
-  return () => console.log("Admin unmounted");
-}, []);
+    if (user.role === "admin") {
+      dispatch(fetchTasks());
+    }
+  }, [user, dispatch, navigate]);
 
-
-
-
-
-
+  /* safe tasks array */
+  const taskArray: Task[] = Array.isArray(tasks) ? tasks : [];
+ 
+console.log(tasks)
   return (
     <div className="p-6 mt-20">
-      <h1 className="text-2xl font-semibold mb-4">Admin Tasks</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold">Admin Tasks</h1>
+        <button className="button" onClick={() => setEditTask({ ...emptyTask })}>
+          + Create Task
+        </button>
+      </div>
+
+      {loading && <p>Loading tasks...</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tasks.map((task) => (
+        {taskArray.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
             onView={setSelectedTask}
-          onEdit={(task) =>
-  setEditTask({
-    ...task,
-    dueDate: task.dueDate.split("T")[0],
-  })
-}
-
+            onEdit={setEditTask}
           />
         ))}
       </div>
 
+      {/* View Task Modal */}
       {selectedTask && (
         <ViewTaskModal
           task={selectedTask}
@@ -106,8 +77,16 @@ const Admin = () => {
         />
       )}
 
-      {editTask.id!=="0" &&(
-        <CreateTaskModal title={editTask.title} description={editTask.description} assignedUser={editTask.assignedUser} dueDate={editTask.dueDate} onClose={onClose}/>
+      {/* Create / Edit Task Modal */}
+      {editTask && (
+        <CreateTaskModal
+          taskId={editTask.id || undefined}
+          title={editTask.title}
+          description={editTask.description || ""}
+          assignedUser={editTask.assigned_user ? String(editTask.assigned_user) : ""}
+          dueDate={editTask.due_date}
+          onClose={() => setEditTask(null)}
+        />
       )}
     </div>
   );

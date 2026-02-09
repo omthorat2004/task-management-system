@@ -11,11 +11,16 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     assigned_user: int
     due_date: date
-    status: TaskStatus
+    status: TaskStatus = "pending"
 
 
-class TaskCreate(TaskBase):
-    pass
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    assigned_user: int
+    due_date: date
+    status: TaskStatus = "pending"  # "pending", "in-progress", "completed"
+
 
 
 class TaskAdminUpdate(TaskBase):
